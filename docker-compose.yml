@@ -1,0 +1,65 @@
+# Versão do docker compose
+version: '3.0'
+
+# Quais são os serviços da aplicação (as diferentes partes da aplicação)
+services:
+
+    nginx:
+        build: # utilizando quando você precisa construir a imagem desse docker (fazer o docker build)
+            dockerfile: ./docker/nginx.dockerfile # caminho onde ele deve procurar o arquivo Dockerfile para buildar a imagem
+            context: . # contexto de onde ele deve começar a procurar os caminhos (nesse caso a partir da minha pasta atual)
+        image: douglasq/nginx # nome que você quer dar para imagem que você vai construir
+        container_name: nginx # nome do container criado a partir dessa imagem
+        ports: # mapeamento de porta
+            - "80:80" # porta do pc : porta do container
+        networks:
+            - production-network # qual rede o container pertence
+        depends_on: # Cria uma dependência de outro container, para que eles subam na ordem correta
+            - node1
+            - node2
+            - node3 
+
+    mongodb: # cria uma imagem do mongo, sem build a partir de nenhum dockerfile
+        image: mongo
+        networks:
+            - production-network
+
+    node1:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        container_name: alura-books-1
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+        depends_on: # Cria uma dependência de outro container, para que eles subam na ordem correta
+            - mongodb 
+
+    node2:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        container_name: alura-books-2
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+        depends_on: # Cria uma dependência de outro container, para que eles subam na ordem correta
+            - mongodb 
+
+    node3:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        container_name: alura-books-3
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+        depends_on: # Cria uma dependência de outro container, para que eles subam na ordem correta
+            - mongodb 
+
+networks: # cria uma nova rede para os dockers
+    production-network: # Nome da sua nova network
+        driver: bridge # driver da sua network
